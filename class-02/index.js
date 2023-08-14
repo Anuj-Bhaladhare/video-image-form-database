@@ -4,7 +4,7 @@ const app = express();
 
 // Port Define karana hai
 require("dotenv").config();
-const PORT = process.env.PORT || 3000;
+// const PORT = process.env.PORT || 3000;
 
 // MongoDB se connet karo
 const MongooConnect = require("./config/dataBase");
@@ -24,6 +24,6 @@ const Upload = require("./routes/FileUpload");
 app.use("/api/v1/upload", Upload);
 
 // server ko active karana hai
-app.listen( PORT, (res, req) => {
-    console.log(`Post started At ${PORT}`);
+app.listen( 4000, (res, req) => {
+    console.log(`Post started At ${4000}`);
 })
