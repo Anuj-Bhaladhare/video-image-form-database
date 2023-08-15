@@ -17,7 +17,10 @@ cloudConnect.cloudinaryConnect();
 // Middlewear add karana hai
 app.use(express.json());
 const fileUpload = require("express-fileupload");
-app.use(fileUpload());
+app.use(fileUpload({
+    useTempFiles : true,
+    tempFileDir : '/tmp/'
+}));
 
 // API routes mount karana hai
 const Upload = require("./routes/FileUpload");

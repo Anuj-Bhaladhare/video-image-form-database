@@ -1,5 +1,6 @@
 const File = require("../modals/File");
-const cloudinarry = require("cloudinary");
+const cloudinary = require('cloudinary').v2; // Make sure to import the Cloudinary module
+
 
 
 // LocalFileUpload -> Handaler function
@@ -28,50 +29,54 @@ exports.localFileUpload = async(req, res) => {
 }
 
 
-const cloudinary = require('cloudinary').v2; // Make sure to import the Cloudinary module
 
-function isFileTypeSupported(type, supportedTypes) {
-    return supportedTypes.includes(type);
+function supportedFileType(supportedFile, fileType) {
+    return supportedFile.includes(fileType);
 }
 
-async function uploadFileToCloudinary(file, folder, quality) {
+const uploadFileToCloudnarry = async (file, folder, quality) => {
     const options = { folder };
+    console.log("temp file path", file.tempFilePath);
 
     if (quality) {
         options.quality = quality;
     }
 
-    options.resource_type = 'auto';
+    options.resource_type = "auto";
     return await cloudinary.uploader.upload(file.tempFilePath, options);
 }
 
 // image upload ka handler
 exports.imageUpload = async (req, res) => {
     try {
-        // Destructure fields from req.body
-        const { tags, name, email } = req.body;
+        // fetch data from request body
+        const { name, email, tag } = req.body;
+        console.log(name, email, tag);
 
-        // Destructure 'imageFile' from req.files
-        const { imageFile } = req.files;
+        const file = req.files.imageUrl;
 
-        // Validation
-        const supportedTypes = ['jpg', 'png', 'jpeg'];
-        const fileType = imageFile.name.split('.').pop().toLowerCase(); // Get the file extension
+        // validation
+        const supportedFile = ["jpeg", "jpg", "png"];
+        const fileType = file.name.split(".")[1].toLowerCase();
+        console.log(fileType);
 
-        if (!isFileTypeSupported(fileType, supportedTypes)) {
+        if (!supportedFileType(supportedFile, fileType)) {
             return res.status(400).json({
                 success: false,
-                message: 'File format not supported',
+                message: "file type is not supported",
             });
         }
 
-        // File format supported
-        const response = await uploadFileToCloudinary(imageFile, 'codehelp');
+        console.log("temp file path", file.tempFilePath); // Ensure tempFilePath is correct
 
-        // Create a record in the database (assuming you have a 'File' model)
+        // file Format is supported hai
+        const response = await uploadFileToCloudnarry(file, "sample-trying");
+        console.log(response);
+
+        // db me entry save krni hai
         const fileData = await File.create({
             name,
-            tags,
+            tag,
             email,
             imageUrl: response.secure_url,
         });
@@ -79,13 +84,15 @@ exports.imageUpload = async (req, res) => {
         res.json({
             success: true,
             imageUrl: response.secure_url,
-            message: 'Image Successfully Uploaded',
+            message: "Image Successfully Uploaded",
         });
+
     } catch (error) {
-        console.error(error);
+        console.log("file is not uploaded", error);
         res.status(400).json({
             success: false,
-            message: 'Something went wrong',
+            message: "file is not uploaded, please try again....!"
         });
     }
-};
+}
+
